@@ -73,14 +73,24 @@ html, body {
   overflow: hidden;
 }
 
-.stage-inner {
+/* Wrapper: takes the SCALED dimensions so layout matches visual */
+.stage-fit {
   position: relative;
-  width: var(--slide-w);
-  height: var(--slide-h);
-  transform-origin: center center;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+  background: var(--bg);
+  /* width and height set inline by useStageScale */
+  flex-shrink: 0;
+}
+
+/* Inner slide — kept at native 1280x720, scaled visually */
+.stage-inner {
+  position: absolute;
+  top: 0; left: 0;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  transform-origin: top left;
   background: var(--bg);
 }
 
@@ -1396,14 +1406,19 @@ html, body {
     max-width: 60%;
   }
 
-  /* ===== Slide as a lesson card ===== */
+  /* ===== Slide as a lesson card =====
+     The .stage-fit wrapper now has the *real* (scaled) dimensions, so the
+     card sits inside the stage like a proper lesson tile. */
   .stage {
     background: transparent;
-    padding: 16px 14px 8px;
-    overflow: hidden;          /* prevent overflow from 1280x720 layout box */
+    padding: 12px 12px 6px;
+    overflow: hidden;
     min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
   }
-  .stage-inner {
+  .stage-fit {
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(13, 36, 56, 0.10), 0 1px 3px rgba(13, 36, 56, 0.06);
     background: #fff;

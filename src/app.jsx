@@ -5,34 +5,50 @@
 
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-/* ---------- Auto-scale the 1280x720 stage to fit any window ---------- */
+/* ---------- Auto-scale the 1280x720 stage to fit any window ----------
+   The .stage-inner is absolutely positioned at 1280x720 inside .stage-fit,
+   and we resize .stage-fit to match the scaled visual so the layout box
+   matches what the user sees (no invisible overflow on mobile). */
 function useStageScale(deps = []) {
   const ref = useRef(null);
-  // Re-fit when any of the deps change (e.g. notes panel toggled)
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const parent = el.parentElement;
+    const wrap  = el.parentElement;          // .stage-fit
+    const stage = wrap && wrap.parentElement; // .stage
+    if (!stage) return;
     const fit = () => {
-      const pad = 28;
-      const sx = (parent.clientWidth  - pad) / 1280;
-      const sy = (parent.clientHeight - pad) / 720;
-      const s  = Math.min(sx, sy, 1.4);
-      if (isFinite(s) && s > 0) el.style.transform = `scale(${s})`;
+      const isMobile = window.innerWidth <= 900;
+      const padX = isMobile ? 24 : 28;
+      const padY = isMobile ? 16 : 28;
+      const availW = stage.clientWidth  - padX;
+      const availH = stage.clientHeight - padY;
+      const sx = availW / 1280;
+      const sy = availH / 720;
+      // Mobile: prefer width (slide fills the card horizontally).
+      // Desktop: fit both axes inside the stage.
+      const s = isMobile
+        ? Math.min(sx, 1.4)
+        : Math.min(sx, sy, 1.4);
+      if (!isFinite(s) || s <= 0) return;
+      wrap.style.width  = (1280 * s) + "px";
+      wrap.style.height = (720  * s) + "px";
+      el.style.transformOrigin = "top left";
+      el.style.transform = `scale(${s})`;
     };
-    // run twice across two frames so the layout has settled (grid relayout
-    // after notes toggle can take a frame to commit)
     requestAnimationFrame(() => { fit(); requestAnimationFrame(fit); });
 
     let ro;
     if (typeof ResizeObserver !== "undefined") {
       ro = new ResizeObserver(fit);
-      ro.observe(parent);
+      ro.observe(stage);
     }
     window.addEventListener("resize", fit);
+    window.addEventListener("orientationchange", fit);
     return () => {
       if (ro) ro.disconnect();
       window.removeEventListener("resize", fit);
+      window.removeEventListener("orientationchange", fit);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
@@ -344,12 +360,14 @@ function App() {
 
       {/* Stage */}
       <div className="stage">
-        <div className="stage-inner" ref={stageRef}>
-          <SlideComp
-            index={idx + 1}
-            total={total}
-            onOpenDemo={() => setDemoOpen(true)}
-          />
+        <div className="stage-fit">
+          <div className="stage-inner" ref={stageRef}>
+            <SlideComp
+              index={idx + 1}
+              total={total}
+              onOpenDemo={() => setDemoOpen(true)}
+            />
+          </div>
         </div>
       </div>
 
