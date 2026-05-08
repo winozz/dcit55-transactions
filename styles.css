@@ -1309,6 +1309,12 @@ html, body {
    - Device "scene" stacks vertically
    ============================================================ */
 @media (max-width: 900px) {
+  /* Hard-stop horizontal page scroll on mobile */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   /* Override outer app shell: header + content + notes + nav stack */
   body { background: #f1f5fb; }
 
@@ -1394,8 +1400,8 @@ html, body {
   .stage {
     background: transparent;
     padding: 16px 14px 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;          /* prevent overflow from 1280x720 layout box */
+    min-width: 0;
   }
   .stage-inner {
     border-radius: 16px;
@@ -1541,32 +1547,72 @@ html, body {
   .toolbar .left .counter { display: inline-block; }
   .btn { padding: 6px 9px; font-size: 12px; min-width: 36px; }
 
-  /* Demo overlay -> full-screen */
+  /* Demo overlay -> full-screen, all content stacked, no horizontal overflow */
   .overlay { padding: 0; }
   .demo {
     width: 100vw;
-    max-height: 100vh;
-    height: 100vh;
+    max-width: 100vw;
+    max-height: 100dvh;
+    height: 100dvh;
     border-radius: 0;
   }
-  .demo header h2 { font-size: 15px; }
-  .demo header .pill { font-size: 10px; padding: 3px 8px; }
+  .demo header {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    padding: 10px 12px;
+    align-items: center;
+  }
+  .demo header .pill {
+    order: 1;
+    font-size: 10px; padding: 3px 8px;
+  }
+  .demo header h2 {
+    order: 4;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.25;
+    margin: 0;
+    color: #cfdbe6;
+    font-weight: 600;
+  }
+  .demo header .btn {
+    order: 2;
+    padding: 5px 10px; font-size: 12px;
+    min-width: 0; min-height: 32px;
+  }
   .demo .body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-width: 0;
   }
+  .demo .side, .demo .work { min-width: 0; }
   .demo .side {
     border-right: none;
     border-bottom: 1px solid var(--line);
-    max-height: 28vh;
+    max-height: 22vh;
     display: flex; flex-wrap: wrap; gap: 6px;
     padding: 10px;
+    overflow-y: auto;
   }
-  .demo .side h4 { width: 100%; margin: 0; }
-  .demo .technique { flex: 1 1 45%; margin-bottom: 0; padding: 8px 10px; }
+  .demo .side h4 { width: 100%; margin: 0 0 4px; }
+  .demo .technique {
+    flex: 1 1 calc(50% - 6px);
+    margin-bottom: 0;
+    padding: 7px 10px;
+    border-left-width: 3px;
+  }
   .demo .technique strong { font-size: 13px; }
   .demo .technique small { font-size: 11px; }
-  .demo .work { padding: 14px 14px; }
+  .demo .work {
+    padding: 12px;
+    overflow-y: auto;
+  }
+  .demo .work h2 {
+    font-size: 17px;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .demo .work h2 + div + p { font-size: 13.5px; }
 
   /* Stack the two device cards vertically */
   .scene {
