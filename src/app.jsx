@@ -75,6 +75,40 @@ function App() {
   const previewNext = () => setPreview(p => Math.min(p + 1, total - 1));
   const previewPrev = () => setPreview(p => Math.max(p - 1, 0));
 
+  /* Touch / swipe navigation on the stage (mobile) */
+  useEffect(() => {
+    const stageEl = stageRef.current && stageRef.current.parentElement;
+    if (!stageEl) return;
+    let startX = 0, startY = 0, startT = 0, tracking = false;
+    const onStart = (e) => {
+      if (!e.touches || e.touches.length !== 1) return;
+      tracking = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      startT = Date.now();
+    };
+    const onEnd = (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const t = e.changedTouches && e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      const dt = Date.now() - startT;
+      // Horizontal swipe, fast enough, dominant over vertical movement
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 600) {
+        if (dx < 0) next();
+        else        prev();
+      }
+    };
+    stageEl.addEventListener("touchstart", onStart, { passive: true });
+    stageEl.addEventListener("touchend",   onEnd,   { passive: true });
+    return () => {
+      stageEl.removeEventListener("touchstart", onStart);
+      stageEl.removeEventListener("touchend",   onEnd);
+    };
+  }, [next, prev]);
+
   /* Listen for goto commands from the presenter popup window */
   useEffect(() => {
     const onStorage = (e) => {

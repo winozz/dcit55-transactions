@@ -1286,3 +1286,138 @@ html, body {
 @media (max-width: 1400px) {
   .app.with-notes { grid-template-columns: 1fr 300px; }
 }
+
+/* ============================================================
+   Tablet / mobile  (<=900px)
+   - Notes panel moves UNDER the stage instead of beside it
+   - Toolbar wraps; keyboard-shortcut hints hidden
+   - Demo overlay becomes full-screen with stacked layout
+   - Device "scene" stacks vertically
+   ============================================================ */
+@media (max-width: 900px) {
+  .app.with-notes {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "stage"
+      "bar"
+      "notes";
+  }
+
+  .notes-panel {
+    border-left: none;
+    border-top: 1px solid #16314a;
+    max-height: 42vh;
+    padding: 12px 14px 10px;
+  }
+  .notes-panel .body { font-size: 13.5px; }
+
+  .toolbar {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .toolbar .left,
+  .toolbar .center,
+  .toolbar .right { flex-wrap: wrap; gap: 6px; }
+  .toolbar .right { display: none; } /* keyboard hints */
+  .toolbar .left > span { display: none; } /* hide slide title text */
+  .toolbar .left .counter { display: inline-block; }
+  .btn { padding: 6px 9px; font-size: 12px; min-width: 36px; }
+
+  /* Demo overlay -> full-screen */
+  .overlay { padding: 0; }
+  .demo {
+    width: 100vw;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+  }
+  .demo header h2 { font-size: 15px; }
+  .demo header .pill { font-size: 10px; padding: 3px 8px; }
+  .demo .body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .demo .side {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    max-height: 28vh;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 10px;
+  }
+  .demo .side h4 { width: 100%; margin: 0; }
+  .demo .technique { flex: 1 1 45%; margin-bottom: 0; padding: 8px 10px; }
+  .demo .technique strong { font-size: 13px; }
+  .demo .technique small { font-size: 11px; }
+  .demo .work { padding: 14px 14px; }
+
+  /* Stack the two device cards vertically */
+  .scene {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+  }
+  .scene-bus {
+    flex-direction: row;
+    width: 100%;
+    height: 28px;
+    gap: 10px;
+  }
+  .scene-bus .bus-line {
+    flex: 1; height: 2px; width: auto;
+    background: linear-gradient(90deg, transparent 0%, var(--line) 12%, var(--line) 88%, transparent 100%);
+  }
+
+  /* Stack the SQL transaction cards */
+  .demo-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Trim device min-height so two cards fit one screen at a time */
+  .device { min-height: 520px; }
+
+  /* Demo table - allow horizontal scroll on narrow screens */
+  .table-vis { overflow-x: auto; }
+  .table-vis table { min-width: 480px; }
+
+  /* Step explainer compact */
+  .step-explainer { padding: 10px 12px; }
+  .step-explainer .body { font-size: 13.5px; }
+}
+
+/* Phone portrait (<=600px): tighter spacing & smaller chrome */
+@media (max-width: 600px) {
+  .toolbar .left .counter { padding: 4px 8px; }
+  .toolbar .center .btn { padding: 6px 8px; }
+  .toolbar .center .btn:nth-child(4),  /* hide Fullscreen */
+  .toolbar .center .btn:nth-child(3) {  /* hide Presenter view */
+    display: none;
+  }
+
+  .device { min-height: 480px; }
+
+  .demo header { padding: 10px 14px; gap: 8px; }
+  .demo header h2 { font-size: 14px; }
+  .demo .work { padding: 10px 12px; }
+
+  .step-explainer .badge { font-size: 10px; padding: 2px 8px; }
+  .step-explainer .title { font-size: 12px; }
+
+  .gc-amt { font-size: 18px; }
+  .cs-amt, .cb-amt { font-size: 18px; }
+
+  .notes-panel .jumpbar .jump input { width: 38px; }
+}
+
+/* Very small (iPhone SE etc.) */
+@media (max-width: 380px) {
+  .app.with-notes .notes-panel { max-height: 38vh; }
+  .toolbar .left .btn:first-child,        /* ⏮ first */
+  .toolbar .left .btn:nth-child(5) {       /* ⏭ last  */
+    display: none;
+  }
+  .device { min-height: 440px; }
+}
