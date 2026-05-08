@@ -1288,6 +1288,20 @@ html, body {
 }
 
 /* ============================================================
+   Mobile LMS-style chrome
+   - Sticky course header with progress bar
+   - Slide rendered as a clean lesson card
+   - Notes panel becomes a readable lesson body
+   - Big sticky bottom nav with Prev / Lab / Next pills
+   ============================================================ */
+
+/* Hidden on desktop */
+.mobile-header,
+.mobile-nav {
+  display: none;
+}
+
+/* ============================================================
    Tablet / mobile  (<=900px)
    - Notes panel moves UNDER the stage instead of beside it
    - Toolbar wraps; keyboard-shortcut hints hidden
@@ -1295,14 +1309,215 @@ html, body {
    - Device "scene" stacks vertically
    ============================================================ */
 @media (max-width: 900px) {
+  /* Override outer app shell: header + content + notes + nav stack */
+  body { background: #f1f5fb; }
+
+  .app,
   .app.with-notes {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
+      "header"
       "stage"
-      "bar"
-      "notes";
+      "notes"
+      "bar";
+    height: 100dvh;          /* dynamic viewport - respects mobile URL bar */
+    background: #f1f5fb;
   }
+  /* When notes are hidden, collapse the notes row */
+  .app:not(.with-notes) {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "header"
+      "stage"
+      "bar";
+  }
+
+  /* ===== Sticky course header ===== */
+  .mobile-header {
+    grid-area: header;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px 12px;
+    background: linear-gradient(135deg, #0d2438 0%, #1a4a6a 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(13, 36, 56, 0.18);
+    z-index: 5;
+  }
+  .mh-top {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mh-id { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .mh-tag {
+    background: var(--amber); color: var(--navy);
+    font-weight: 800; font-size: 11px; letter-spacing: 0.08em;
+    padding: 3px 8px; border-radius: 6px;
+  }
+  .mh-course {
+    font-weight: 700; font-size: 14px; color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .mh-menu {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .mh-progress {
+    height: 6px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .mh-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), #ffd166);
+    transition: width 320ms ease;
+    border-radius: 999px;
+  }
+  .mh-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: #cfdbe6;
+  }
+  .mh-lesson { font-weight: 700; color: var(--amber); letter-spacing: 0.04em; }
+  .mh-section {
+    color: #fff; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 60%;
+  }
+
+  /* ===== Slide as a lesson card ===== */
+  .stage {
+    background: transparent;
+    padding: 16px 14px 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .stage-inner {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(13, 36, 56, 0.10), 0 1px 3px rgba(13, 36, 56, 0.06);
+    background: #fff;
+    margin: 0 auto;
+  }
+
+  /* ===== Notes panel as a reading lesson body ===== */
+  .notes-panel {
+    grid-area: notes;
+    background: #fff;
+    color: #1f3a55;
+    border: none;
+    border-top: 1px solid #e0e7ee;
+    margin: 4px 12px 0;
+    border-radius: 14px 14px 0 0;
+    padding: 16px 18px 14px;
+    box-shadow: 0 -2px 10px rgba(13, 36, 56, 0.06);
+    max-height: 36vh;
+    overflow-y: auto;
+  }
+  .notes-panel h3 {
+    color: var(--primary);
+    font-size: 11px; letter-spacing: 0.16em;
+    margin-bottom: 4px;
+  }
+  .notes-panel .sub {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .notes-panel .sub strong { color: var(--ink); }
+  .notes-panel .body {
+    color: #1f3a55;
+    font-size: 14.5px;
+    line-height: 1.65;
+    font-family: Georgia, "Times New Roman", "Iowan Old Style", serif;
+    padding-right: 0;
+  }
+  .notes-panel.unsynced { background: #fff8e6; }
+  .notes-panel.unsynced::before { color: #8a6300; }
+  .notes-panel .jumpbar {
+    background: #f1f5fb;
+    border: 1px solid #e0e7ee;
+    margin-bottom: 10px;
+  }
+  .notes-panel .jumpbar .jump {
+    background: #fff; border-color: #e0e7ee;
+  }
+  .notes-panel .jumpbar .jump input { color: var(--ink); }
+  .notes-panel .jumpbar .of { color: var(--muted); }
+  .notes-panel .jumpbar .btn {
+    background: #fff; color: var(--ink);
+    border-color: #e0e7ee; min-width: 38px;
+    min-height: 38px;
+  }
+  .notes-panel .jumpbar .btn[disabled] { opacity: 0.4; }
+  .notes-panel .controls {
+    border-top: 1px solid #e0e7ee;
+    padding-top: 8px;
+  }
+  .notes-panel .controls label { color: var(--muted); }
+  .notes-panel .controls .btn {
+    background: #fff; color: var(--ink);
+    border-color: #e0e7ee;
+  }
+
+  /* ===== Hide the dark desktop toolbar (we use mobile-nav instead) ===== */
+  .toolbar { display: none; }
+
+  /* ===== Sticky bottom mobile nav (LMS) ===== */
+  .mobile-nav {
+    grid-area: bar;
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: #fff;
+    border-top: 1px solid #e0e7ee;
+    box-shadow: 0 -2px 10px rgba(13, 36, 56, 0.05);
+    z-index: 4;
+  }
+  .mn-btn {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    background: #f1f5fb;
+    border: 1px solid #d8e2ec;
+    color: var(--ink);
+    border-radius: 12px;
+    padding: 12px 10px;
+    font-size: 14px; font-weight: 700;
+    min-height: 48px;          /* touch target */
+    cursor: pointer;
+    transition: transform 80ms ease, background 120ms ease;
+  }
+  .mn-btn:active { transform: scale(0.97); }
+  .mn-btn[disabled] {
+    opacity: 0.4; cursor: not-allowed;
+  }
+  .mn-btn .mn-arrow { font-size: 11px; opacity: 0.85; }
+  .mn-btn .mn-icon  { font-size: 16px; }
+
+  /* Primary "Next" pill - amber LMS accent */
+  .mn-next {
+    background: linear-gradient(90deg, var(--amber), #ffc847);
+    border-color: #e8a91f;
+    color: var(--navy);
+    flex: 1.2;
+  }
+  .mn-prev {
+    flex: 1.2;
+  }
+
+  /* Lab button - ties to demo */
+  .mn-lab {
+    background: linear-gradient(90deg, #1e6091, #2a7ab2);
+    border-color: #1c5680;
+    color: #fff;
+    flex: 0.9;
+  }
+  .mn-lab .mn-icon { font-size: 16px; }
 
   .notes-panel {
     border-left: none;

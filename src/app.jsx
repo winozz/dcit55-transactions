@@ -313,8 +313,35 @@ function App() {
   const SlideComp = slides[idx] || (() => null);
   const noteIdx = synced ? idx : previewIdx;
 
+  const progressPct = Math.round(((idx + 1) / total) * 100);
+
   return (
     <div className={"app" + (showNotes ? " with-notes" : "")}>
+      {/* Mobile-only LMS-style header (hidden on desktop via CSS) */}
+      <header className="mobile-header">
+        <div className="mh-top">
+          <div className="mh-id">
+            <span className="mh-tag">LO10</span>
+            <span className="mh-course">Database Locking Techniques</span>
+          </div>
+          <button
+            className="mh-menu"
+            onClick={() => setShowNotes(v => !v)}
+            aria-label="Toggle notes"
+            title="Toggle notes"
+          >
+            {showNotes ? "📖" : "📝"}
+          </button>
+        </div>
+        <div className="mh-progress" aria-label={`Progress: ${progressPct}%`}>
+          <div className="mh-bar" style={{ width: progressPct + "%" }} />
+        </div>
+        <div className="mh-meta">
+          <span className="mh-lesson">Lesson {idx + 1} of {total}</span>
+          <span className="mh-section">{titles[idx]}</span>
+        </div>
+      </header>
+
       {/* Stage */}
       <div className="stage">
         <div className="stage-inner" ref={stageRef}>
@@ -380,6 +407,36 @@ function App() {
           <span style={{ color: "#8aa3bb" }}>fullscreen</span>
         </div>
       </div>
+
+      {/* Mobile-only sticky bottom nav (LMS-style) */}
+      <nav className="mobile-nav">
+        <button
+          className="mn-btn mn-prev"
+          onClick={prev}
+          disabled={idx === 0}
+          aria-label="Previous lesson"
+        >
+          <span className="mn-arrow">◀</span>
+          <span className="mn-label">Previous</span>
+        </button>
+        <button
+          className="mn-btn mn-lab"
+          onClick={() => setDemoOpen(true)}
+          aria-label="Open Lab / Demo"
+        >
+          <span className="mn-icon">⚡</span>
+          <span className="mn-label">Lab</span>
+        </button>
+        <button
+          className="mn-btn mn-next"
+          onClick={next}
+          disabled={idx === total - 1}
+          aria-label="Next lesson"
+        >
+          <span className="mn-label">Next</span>
+          <span className="mn-arrow">▶</span>
+        </button>
+      </nav>
 
       {/* Presenter notes panel */}
       {showNotes && (
